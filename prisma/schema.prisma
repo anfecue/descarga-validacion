@@ -1,0 +1,55 @@
+// Esquema de solo lectura: únicamente los modelos que necesita la consulta pública.
+// No ejecutar migraciones contra la base de datos existente.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DIRECT_URL")
+  directUrl = env("DIRECT_URL")
+  schemas   = ["public"]
+}
+
+model Registro {
+  id              Int       @id @default(autoincrement())
+  email           String    @map("email")
+  nombreCompleto  String    @map("nombre_completo")
+  cedula          String    @unique @map("cedula")
+  fechaNacimiento DateTime  @map("fecha_nacimiento")
+  indicativoPais  String    @map("indicativo_pais")
+  celular         String    @map("celular")
+  usaTelegram     String    @map("usa_telegram")
+  usuarioTelegram String?   @map("usuario_telegram")
+  pais            String    @map("pais")
+  departamento    String    @map("departamento")
+  ciudad          String    @map("ciudad")
+  estado          String    @default("pendiente") @map("estado")
+  verificado      Boolean   @default(false) @map("verificado")
+  cantidadMembresias Int    @default(1) @map("cantidad_membresias")
+  valorTotal      Int?      @map("valor_total")
+  numeroConsignacion String? @map("numero_consignacion")
+  lider           String    @default("Juan Diego Muñoz Garcia") @map("lider")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  vecesGenerado   Int       @default(0) @map("veces_generado")
+  descargas       Int       @default(0) @map("descargas")
+  impresiones     Int       @default(0) @map("impresiones")
+
+  imagenes RegistroImagen[]
+
+  @@map("registros")
+  @@schema("public")
+}
+
+model RegistroImagen {
+  id            Int      @id @default(autoincrement())
+  registroId    Int      @map("registro_id")
+  tipoDocumento String   @map("tipo_documento")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  registro Registro @relation(fields: [registroId], references: [id], onDelete: Cascade)
+
+  @@map("registro_imagenes")
+  @@schema("public")
+}
